@@ -1,0 +1,926 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="l1exxtt: разработка Telegram-ботов любой сложности и современных сайтов. Автоматизация процессов, API интеграции.">
+<meta name="theme-color" content="#0b0f19">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%277%27 fill=%27%230b0f19%27/%3E%3Ctext x=%2716%27 y=%2723%27 font-family=%27monospace%27 font-size=%2720%27 font-weight=%27700%27 text-anchor=%27middle%27 fill=%27%235dffa8%27%3El1%3C/text%3E%3C/svg%3E">
+<title>l1exxtt | Telegram-боты и разработка сайтов</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* Layout concept: glass header, hero with copy on the left and a 3D device stage (phone with a Telegram bot chat, laptop with live code) on the right, then services, an editor-style about window, project terminals and a contact block. One dark look by choice. */
+:root{
+  --bg:#0b0f19;
+  --panel:rgba(15,21,37,.78);
+  --line:rgba(130,150,210,.18);
+  --fg:#d8def0;
+  --muted:#8591b2;
+  --soft:#aab4d0;
+  --purple:#b46bff;
+  --blue:#4cc9ff;
+  --green:#5dffa8;
+  --purple-rgb:180,107,255;
+  --blue-rgb:76,201,255;
+  --green-rgb:93,255,168;
+  --mono:'JetBrains Mono','Fira Code',ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+  --sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  --ease:cubic-bezier(0.25,1,0.5,1);
+  --radius:12px;
+  color-scheme:dark;
+}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:400 1rem/1.65 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+a{color:inherit}
+::selection{background:rgba(var(--purple-rgb),.38);color:#fff}
+:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:4px}
+.wrap{width:min(1120px,100% - 2rem);margin-inline:auto}
+svg.ic{width:1.15em;height:1.15em;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* smooth transitions on every interactive element */
+a,button,input,textarea,.btn,.card,.svc,.ccard,.kb .k{transition:all 0.4s cubic-bezier(0.25, 1, 0.5, 1)}
+
+/* background: soft grid and spotlight that follow the pointer */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:0}
+.grid-fx,.spot,.vig{position:absolute;inset:0}
+.grid-fx{background-image:linear-gradient(rgba(var(--blue-rgb),.15) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--blue-rgb),.15) 1px,transparent 1px);background-size:56px 56px;
+  -webkit-mask-image:radial-gradient(circle 300px at var(--mx,70%) var(--my,25%),#000,transparent);mask-image:radial-gradient(circle 300px at var(--mx,70%) var(--my,25%),#000,transparent)}
+.spot{background:radial-gradient(circle 480px at var(--mx,70%) var(--my,25%),rgba(var(--purple-rgb),.14),transparent 70%)}
+.vig{background:radial-gradient(ellipse at 50% 30%,transparent 55%,rgba(0,0,0,.4))}
+main,footer{position:relative;z-index:1}
+main{overflow-x:clip}
+
+/* header */
+.site-header{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:rgba(11,15,25,.6);
+  -webkit-backdrop-filter:blur(14px) saturate(150%);backdrop-filter:blur(14px) saturate(150%);border-bottom:1px solid var(--line)}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;min-height:64px}
+.logo{font:800 1.7rem/1 var(--mono);letter-spacing:-.03em;text-decoration:none;color:#f1f7ff;text-shadow:0 0 10px rgba(var(--blue-rgb),.75),0 0 30px rgba(var(--purple-rgb),.5)}
+.logo span{color:var(--purple);text-shadow:0 0 12px rgba(var(--purple-rgb),.9)}
+nav{display:flex;gap:clamp(1rem,3vw,2rem);font:500 .86rem var(--mono)}
+nav a{position:relative;text-decoration:none;color:var(--muted);padding-block:.3rem}
+nav a::before{content:'./';color:var(--purple)}
+nav a::after{content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--green);box-shadow:0 0 8px var(--green);transform:scaleX(0);transform-origin:left}
+nav a:hover{color:var(--green);text-shadow:0 0 12px rgba(var(--green-rgb),.7)}
+nav a:hover::after{transform:scaleX(1)}
+.menu-btn{display:none;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border-radius:10px;border:1px solid rgba(var(--blue-rgb),.4);background:rgba(var(--blue-rgb),.07);color:var(--blue);cursor:pointer}
+.menu-btn:hover{background:rgba(var(--blue-rgb),.16);box-shadow:0 0 22px rgba(var(--blue-rgb),.4)}
+.menu-btn svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1.02fr) minmax(0,1fr);gap:clamp(2rem,5vw,4rem);align-items:center;padding-block:clamp(2.5rem,6vw,5rem) clamp(2.5rem,6vw,4.5rem)}
+.hero-copy{min-width:0}
+.hero-copy>*{animation:rise 1.1s var(--ease) both;animation-delay:calc(var(--i,0)*.09s)}
+.eyebrow{display:flex;align-items:center;gap:.65rem;margin:0 0 1.4rem;font:500 .82rem var(--mono);color:var(--muted)}
+.eyebrow .dot{flex:none;width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:pulse 2.4s ease-in-out infinite}
+h1{margin:0;font:800 clamp(2.15rem,5.4vw,3.9rem)/1.07 var(--mono);letter-spacing:-.04em;color:#f2f8ff;text-shadow:0 0 26px rgba(var(--blue-rgb),.45);text-wrap:balance}
+h1 em{font-style:normal;background:linear-gradient(90deg,var(--blue),var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 16px rgba(var(--purple-rgb),.5))}
+.sub{margin:1.5rem 0 0;font:500 clamp(.95rem,2.3vw,1.25rem)/1.4 var(--mono);color:var(--green);text-shadow:0 0 14px rgba(var(--green-rgb),.5);min-height:2.8em}
+.sub .prompt{color:var(--purple);margin-right:.7ch}
+.cursor{display:inline-block;width:.5ch;height:1.05em;margin-left:.15em;vertical-align:-.18em;background:var(--green);box-shadow:0 0 12px var(--green);animation:blink 1s steps(1) infinite}
+.lead{max-width:52ch;margin:.4rem 0 0;color:var(--soft)}
+.cta-row{display:flex;flex-wrap:wrap;gap:.9rem;margin-top:2rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.7rem;padding:.9rem 1.5rem;border-radius:10px;text-decoration:none;cursor:pointer;
+  font:700 .95rem var(--mono);color:var(--green);background:rgba(var(--green-rgb),.08);border:1px solid rgba(var(--green-rgb),.7);
+  box-shadow:0 0 18px rgba(var(--green-rgb),.28),inset 0 0 18px rgba(var(--green-rgb),.08);text-shadow:0 0 10px rgba(var(--green-rgb),.8)}
+.btn:hover{transform:translateY(-3px);background:rgba(var(--green-rgb),.17);box-shadow:0 0 34px rgba(var(--green-rgb),.5),0 10px 30px rgba(0,0,0,.4),inset 0 0 22px rgba(var(--green-rgb),.14)}
+.btn:active{transform:translateY(0)}
+.btn.ghost{color:var(--blue);background:rgba(var(--blue-rgb),.06);border-color:rgba(var(--blue-rgb),.5);box-shadow:0 0 16px rgba(var(--blue-rgb),.16);text-shadow:0 0 10px rgba(var(--blue-rgb),.7)}
+.btn.ghost:hover{background:rgba(var(--blue-rgb),.15);box-shadow:0 0 30px rgba(var(--blue-rgb),.4),0 10px 30px rgba(0,0,0,.4)}
+.facts{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1.8rem}
+.tag{display:inline-block;padding:.2rem .65rem;border-radius:999px;border:1px solid rgba(var(--rgb,var(--blue-rgb)),.45);background:rgba(var(--rgb,var(--blue-rgb)),.07);color:rgb(var(--rgb,var(--blue-rgb)));font:500 .74rem var(--mono);text-shadow:0 0 8px rgba(var(--rgb,var(--blue-rgb)),.5)}
+
+/* device stage */
+.stage-wrap{position:relative;width:100%;max-width:560px;margin-inline:auto;aspect-ratio:560/480}
+.stage-wrap::before{content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(closest-side at 30% 62%,rgba(var(--blue-rgb),.2),transparent),radial-gradient(closest-side at 76% 40%,rgba(var(--purple-rgb),.22),transparent);filter:blur(18px)}
+.stage{--sw:560px;--sh:480px;position:absolute;left:0;top:0;width:var(--sw);height:var(--sh);transform-origin:0 0;transform:scale(var(--s,1));perspective:1400px}
+.tilt{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(var(--rx,4deg)) rotateY(var(--ry,-8deg));transition:transform .7s var(--ease)}
+.floor{position:absolute;left:40px;right:30px;bottom:34px;height:30px;border-radius:50%;background:radial-gradient(closest-side,rgba(0,0,0,.6),transparent);filter:blur(6px);transform:translateZ(-30px)}
+
+.laptop{position:absolute;left:32px;top:112px;width:430px;animation:floatA 7s ease-in-out infinite}
+.l-screen{display:flex;flex-direction:column;height:274px;border:8px solid #1b2236;border-bottom-width:10px;border-radius:14px 14px 4px 4px;background:#070a12;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(var(--blue-rgb),.4),0 0 44px rgba(var(--blue-rgb),.22),0 30px 60px rgba(0,0,0,.5)}
+.l-bar{display:flex;align-items:center;gap:6px;padding:6px 9px;background:#0f1628;border-bottom:1px solid rgba(var(--blue-rgb),.2);font:500 .62rem var(--mono);color:#7d8aad;white-space:nowrap;overflow:hidden}
+.l-bar i{flex:none;width:7px;height:7px;border-radius:50%}
+.l-bar i:nth-child(1){background:#ff5f7a}.l-bar i:nth-child(2){background:#ffd166}.l-bar i:nth-child(3){background:var(--green)}
+.l-bar span{margin-left:6px;overflow:hidden;text-overflow:ellipsis}
+.l-body{display:flex;flex-direction:column;flex:1;min-height:0;transition:opacity .6s var(--ease)}
+.l-body.fade{opacity:0}
+.l-code{flex:none;height:150px;padding:8px 10px;font:400 .64rem/1.5 var(--mono);color:#cdd6f4;white-space:pre;overflow:hidden}
+.l-code .ln{display:block;min-height:1.5em}
+.l-code .cur::after{content:'';display:inline-block;width:.5em;height:1em;margin-left:1px;vertical-align:-.15em;background:var(--green);animation:blink 1s steps(1) infinite}
+.l-code .k{color:var(--purple)}.l-code .s{color:var(--green)}.l-code .n{color:var(--blue)}.l-code .f{color:#f6c177}.l-code .p{color:#9aa6c9}
+.l-term{flex:1;min-height:0;display:flex;flex-direction:column;justify-content:flex-end;gap:1px;padding:5px 10px 6px;border-top:1px solid rgba(var(--green-rgb),.28);background:#05080f;font:400 .6rem/1.45 var(--mono);color:var(--green);overflow:hidden;white-space:nowrap}
+.l-term .h{color:#5d6a8c;margin-bottom:auto;text-transform:uppercase;letter-spacing:.08em;font-size:.54rem}
+.l-term .t{color:#5d6a8c;margin-right:.8ch}
+.l-term .info{color:var(--blue)}
+.l-term div.row{animation:pop .5s var(--ease) both}
+.l-base{position:relative;width:calc(100% + 56px);margin-left:-28px;height:14px;border-radius:0 0 18px 18px;background:linear-gradient(#2b3552,#151b2d);box-shadow:0 20px 40px rgba(0,0,0,.55)}
+.l-base::before{content:'';position:absolute;left:50%;top:0;width:92px;height:5px;transform:translateX(-50%);border-radius:0 0 8px 8px;background:#0c1120}
+
+.phone{position:absolute;left:350px;top:22px;width:190px;height:396px;padding:8px;border-radius:34px;background:linear-gradient(145deg,#2b3552,#10152a);
+  box-shadow:0 0 0 1px rgba(var(--purple-rgb),.5),0 0 48px rgba(var(--purple-rgb),.3),0 40px 70px rgba(0,0,0,.6);transform:translateZ(70px);animation:floatB 6s ease-in-out infinite}
+.p-screen{position:relative;display:flex;flex-direction:column;height:100%;border-radius:27px;overflow:hidden;background:#0d1422}
+.p-notch{position:absolute;top:9px;left:50%;z-index:3;width:56px;height:15px;border-radius:10px;background:#04060d;transform:translateX(-50%)}
+.tg-head{display:flex;align-items:center;gap:8px;padding:30px 11px 8px;background:#121b2d;border-bottom:1px solid rgba(255,255,255,.06)}
+.tg-ava{flex:none;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,var(--blue),var(--purple));color:#06101c;font:800 .72rem var(--mono)}
+.tg-head b{display:block;font:600 .7rem/1.15 var(--sans);color:#eaf1ff;white-space:nowrap}
+.tg-head small{font:400 .6rem var(--sans);color:var(--blue)}
+.tg-chat{position:relative;flex:1;min-height:0;overflow:hidden;background:radial-gradient(circle at 20% 10%,rgba(var(--blue-rgb),.07),transparent 55%),#0d1422;transition:opacity .6s var(--ease)}
+.tg-chat.fade{opacity:0}
+.tg-flow{display:flex;flex-direction:column;gap:6px;padding:10px 8px 14px;transition:transform .7s var(--ease)}
+.tg-flow.snap{transition:none}
+.m{max-width:88%;padding:6px 9px;border-radius:12px;font:400 .7rem/1.35 var(--sans);color:#e8eefc}
+.m.u{align-self:flex-end;background:#2b5a8c;border-bottom-right-radius:4px}
+.m.b{align-self:flex-start;background:#1b2740;border-bottom-left-radius:4px}
+.m.sys{align-self:center;max-width:100%;padding:3px 10px;border-radius:999px;background:rgba(var(--green-rgb),.1);border:1px solid rgba(var(--green-rgb),.3);color:var(--green);font-size:.6rem}
+.m.typing{display:flex;gap:4px;padding:9px 11px}
+.m.typing i{width:5px;height:5px;border-radius:50%;background:#7e92b8;animation:dot 1.1s ease-in-out infinite}
+.m.typing i:nth-child(2){animation-delay:.15s}.m.typing i:nth-child(3){animation-delay:.3s}
+.kb{display:grid;gap:4px;margin-top:7px}
+.kb.two{grid-template-columns:1fr 1fr}
+.kb .k{display:block;padding:5px 6px;border-radius:7px;text-align:center;background:rgba(var(--blue-rgb),.15);border:1px solid rgba(var(--blue-rgb),.3);color:#bfe8ff;font:500 .64rem var(--sans)}
+.kb .k.press{transform:scale(.93);background:rgba(var(--blue-rgb),.5);border-color:rgba(var(--blue-rgb),.9);box-shadow:0 0 14px rgba(var(--blue-rgb),.75);color:#fff}
+.tg-input{display:flex;align-items:center;justify-content:space-between;padding:8px 11px 10px;background:#121b2d;border-top:1px solid rgba(255,255,255,.06);font:400 .64rem var(--sans);color:#6f7e9e}
+.tg-input i{width:16px;height:16px;border-radius:50%;background:rgba(var(--blue-rgb),.5)}
+.js .m{display:none}
+.js .m.show{display:block;animation:pop .5s var(--ease) both}
+.js .m.typing.show{display:flex}
+
+/* sections */
+.sec{padding-block:clamp(3rem,7vw,5.5rem);scroll-margin-top:3.5rem}
+.sec-head{margin-bottom:2.2rem}
+.kicker{margin:0 0 .6rem;font:500 .8rem var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--purple);text-shadow:0 0 12px rgba(var(--purple-rgb),.7)}
+h2{margin:0;font:800 clamp(1.7rem,4.6vw,2.8rem)/1.12 var(--mono);letter-spacing:-.03em;color:#f2f6ff;text-shadow:0 0 18px rgba(var(--blue-rgb),.38);text-wrap:balance}
+.sec-lead{max-width:60ch;margin:.9rem 0 0;color:var(--soft)}
+
+/* panels */
+.panel{--rgb:var(--purple-rgb);min-width:0;background:var(--panel);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  border:1px solid rgba(var(--rgb),.32);border-radius:var(--radius);overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.45),0 0 36px rgba(var(--rgb),.12),inset 0 0 30px rgba(var(--rgb),.03)}
+.lift:hover,.lift:focus-within{transform:translateY(-8px);border-color:rgba(var(--rgb),.85);box-shadow:0 18px 44px rgba(0,0,0,.55),0 0 38px rgba(var(--rgb),.42),inset 0 0 34px rgba(var(--rgb),.09)}
+.t-bar{display:flex;align-items:center;gap:.7rem;padding:.65rem .9rem;border-bottom:1px solid rgba(var(--rgb),.22);background:rgba(var(--rgb),.06);font:500 .76rem var(--mono);color:var(--muted)}
+.t-dots{display:flex;gap:6px}
+.t-dots i{width:8px;height:8px;border-radius:50%;background:rgba(var(--rgb),.6)}
+.t-path{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pill{flex:none;padding:.1rem .55rem;border-radius:999px;border:1px solid rgba(var(--rgb),.5);color:rgb(var(--rgb));font:500 .7rem var(--mono);text-shadow:0 0 8px rgba(var(--rgb),.6)}
+.tags{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:auto;padding-top:.5rem}
+
+/* services */
+.svc-grid,.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,290px),1fr));gap:1.4rem}
+.svc{display:flex;flex-direction:column;gap:.8rem;padding:1.5rem}
+.svc .ico{display:grid;place-items:center;width:48px;height:48px;border-radius:12px;border:1px solid rgba(var(--rgb),.5);background:rgba(var(--rgb),.09);color:rgb(var(--rgb));box-shadow:0 0 20px rgba(var(--rgb),.3)}
+.svc .ico svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(var(--rgb),.8))}
+.svc h3,.card h3{margin:0;font:700 1.25rem/1.2 var(--mono);color:#f3f7ff;text-shadow:0 0 14px rgba(var(--rgb),.5)}
+.svc p,.card p{margin:0;color:var(--soft);font-size:.95rem}
+
+/* about */
+.about-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:clamp(1.4rem,4vw,3rem);align-items:start}
+.win-bar{display:flex;align-items:center;gap:1rem;padding:.7rem .9rem;border-bottom:1px solid rgba(var(--rgb),.22);background:rgba(var(--rgb),.07)}
+.ctl{display:flex;gap:8px}
+.ctl button{width:13px;height:13px;padding:0;border:0;border-radius:50%;cursor:pointer}
+.ctl button:hover{transform:scale(1.3)}
+.ctl .r{background:#ff5f7a;box-shadow:0 0 10px rgba(255,95,122,.8)}
+.ctl .y{background:#ffd166;box-shadow:0 0 10px rgba(255,209,102,.8)}
+.ctl .g{background:var(--green);box-shadow:0 0 10px rgba(var(--green-rgb),.8)}
+.tab{font:500 .78rem var(--mono);color:var(--soft);padding:.2rem .7rem;border-radius:6px 6px 0 0;background:rgba(var(--rgb),.14);border-bottom:2px solid var(--purple)}
+.code-scroll{overflow-x:auto;padding:1.1rem 0}
+.code{margin:0;padding:0 1.1rem 0 0;width:max-content;min-width:100%;counter-reset:line;font:400 .82rem/1.85 var(--mono);color:var(--fg)}
+.code .l{display:block;white-space:pre;counter-increment:line}
+.code .l::before{content:counter(line);display:inline-block;width:3ch;margin-right:1.6ch;text-align:right;color:#4d5878;user-select:none}
+.code .k{color:var(--purple)}.code .s{color:var(--green)}.code .n{color:var(--blue)}.code .p{color:#9aa6c9}
+.win-status{display:flex;flex-wrap:wrap;gap:.3rem 1.2rem;padding:.5rem .9rem;border-top:1px solid rgba(var(--rgb),.22);background:rgba(var(--rgb),.07);font:500 .72rem var(--mono);color:var(--muted)}
+.win-status .live{margin-left:auto;color:var(--green)}
+.chips{display:flex;flex-wrap:wrap;gap:.55rem;margin-top:1.2rem}
+.principles{list-style:none;margin:0;padding:0;display:grid;gap:1.6rem}
+.principles li{display:grid;gap:.35rem}
+.principles .lab{font:700 .95rem var(--mono);color:var(--blue);text-shadow:0 0 12px rgba(var(--blue-rgb),.55)}
+.principles p{margin:0;color:var(--soft)}
+.shake{animation:shake .45s}
+
+/* projects */
+.card{--rgb:var(--blue-rgb);display:flex;flex-direction:column}
+.t-body{display:flex;flex-direction:column;gap:.75rem;flex:1;padding:1.1rem 1.1rem 1.2rem}
+.t-cmd{font:500 .78rem var(--mono);color:rgba(var(--rgb),.95)}
+.t-cmd::before{content:'$ ';color:var(--muted)}
+.more{display:inline-flex;align-items:center;gap:.4rem;align-self:flex-start;margin-top:.4rem;text-decoration:none;font:600 .86rem var(--mono);color:rgb(var(--rgb));text-shadow:0 0 10px rgba(var(--rgb),.6)}
+.more .ic{animation:nudge 2.4s ease-in-out infinite;filter:drop-shadow(0 0 4px rgba(var(--rgb),.8))}
+.card:hover .more .ic,.more:focus-visible .ic{animation-duration:.8s}
+
+/* contact */
+.contact-grid{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:clamp(1.4rem,4vw,3rem);align-items:start}
+.log{--rgb:var(--green-rgb)}
+.log form{display:grid;gap:1rem;padding:1.2rem}
+.log label{display:block;margin-bottom:.35rem;font:500 .8rem var(--mono);color:var(--green)}
+.log label::before{content:'> ';color:var(--purple)}
+.log input,.log textarea{width:100%;padding:.75rem .9rem;border-radius:8px;border:1px solid var(--line);background:rgba(8,12,22,.85);color:var(--fg);font:400 .92rem var(--mono);resize:vertical}
+.log input::placeholder,.log textarea::placeholder{color:#55607f}
+.log input:focus,.log textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(var(--green-rgb),.14),0 0 22px rgba(var(--green-rgb),.3)}
+.log .btn{justify-self:start}
+.log-out{margin:0;min-height:3em;font:500 .8rem/1.5 var(--mono);color:var(--green);text-shadow:0 0 10px rgba(var(--green-rgb),.5)}
+.log-out a{color:var(--blue)}
+.side h3{margin:0 0 .6rem;font:700 1.25rem var(--mono);color:#f3f7ff;text-shadow:0 0 14px rgba(var(--purple-rgb),.5)}
+.side>p{margin:0;color:var(--soft);max-width:44ch}
+.ccards{display:grid;gap:.9rem;margin-top:1.4rem}
+.ccard{--rgb:var(--green-rgb);display:flex;align-items:stretch;border-radius:12px;border:1px solid rgba(var(--rgb),.5);background:rgba(var(--rgb),.06);box-shadow:0 0 16px rgba(var(--rgb),.2),inset 0 0 14px rgba(var(--rgb),.05);overflow:hidden}
+.ccard:hover,.ccard:focus-within{transform:translateY(-4px);background:rgba(var(--rgb),.12);box-shadow:0 0 32px rgba(var(--rgb),.45),0 10px 26px rgba(0,0,0,.4)}
+.ccard-link{display:flex;align-items:center;gap:.9rem;flex:1;min-width:0;padding:.9rem 1rem;text-decoration:none;color:rgb(var(--rgb))}
+.ccard-link svg{flex:none;width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;filter:drop-shadow(0 0 6px rgba(var(--rgb),.8))}
+.ccard-link span{display:block;min-width:0}
+.ccard-link small{display:block;font:500 .7rem var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.ccard-link b{display:block;font:700 1rem var(--mono);color:#f3f7ff;overflow-wrap:anywhere;text-shadow:0 0 12px rgba(var(--rgb),.5)}
+.copy{flex:none;display:flex;align-items:center;gap:.4rem;padding:0 .9rem;border:0;border-left:1px solid rgba(var(--rgb),.3);background:transparent;color:rgb(var(--rgb));font:600 .74rem var(--mono);cursor:pointer}
+.copy:hover{background:rgba(var(--rgb),.16)}
+.copy svg{width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* footer */
+.foot{border-top:1px solid var(--line);padding-block:1.8rem;text-align:center;font:500 .82rem var(--mono);color:var(--muted)}
+.foot span{color:var(--purple);text-shadow:0 0 10px rgba(var(--purple-rgb),.7)}
+
+/* soft reveal on scroll: slide up and fade in. Blocks start readable so the page is complete at rest. */
+.js .rv{opacity:.35;translate:0 28px;transition:opacity 1s var(--ease) var(--d,0s),translate 1s var(--ease) var(--d,0s)}
+.js .rv.in{opacity:1;translate:none}
+.js .card.rv,.js .svc.rv{transition:opacity 1s var(--ease) var(--d,0s),translate 1s var(--ease) var(--d,0s),transform .4s var(--ease),box-shadow .4s var(--ease),border-color .4s var(--ease)}
+
+@keyframes blink{50%{opacity:0}}
+@keyframes pulse{50%{opacity:.35;transform:scale(.8)}}
+@keyframes nudge{50%{transform:translate(3px,-3px)}}
+@keyframes shake{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes rise{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:translateY(8px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes dot{0%,60%,100%{opacity:.35;transform:translateY(0)}30%{opacity:1;transform:translateY(-3px)}}
+@keyframes floatA{50%{translate:0 -7px}}
+@keyframes floatB{50%{translate:0 -11px}}
+
+@media (max-width:960px){
+  .hero{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:860px){
+  .about-grid,.contact-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:720px){
+  .menu-btn{display:inline-flex}
+  nav{position:absolute;left:0;right:0;top:100%;flex-direction:column;gap:.2rem;padding:.6rem 1rem 1rem;font-size:.95rem;
+    background:rgba(11,15,25,.94);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);
+    opacity:0;visibility:hidden;pointer-events:none;transform:translateY(-10px);transition:all 0.4s cubic-bezier(0.25, 1, 0.5, 1)}
+  nav.open{opacity:1;visibility:visible;pointer-events:auto;transform:none}
+  nav a{padding-block:.7rem}
+}
+@media (max-width:600px){
+  .stage-wrap{aspect-ratio:440/730}
+  .stage{--sw:440px;--sh:730px}
+  .laptop{left:6px;top:0}
+  .phone{left:125px;top:318px}
+  .floor{display:none}
+  .btn{width:100%}
+  .log .btn{justify-self:stretch}
+}
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .js .rv{opacity:1;translate:none}
+}
+</style>
+</head>
+<body>
+<script>document.documentElement.classList.add('js')</script>
+
+<div id="fx" aria-hidden="true"><div class="grid-fx"></div><div class="spot"></div><div class="vig"></div></div>
+
+<header class="site-header">
+  <div class="wrap bar">
+    <a class="logo" href="#top" aria-label="l1exxtt, наверх">l<span>1</span>exxtt</a>
+    <button class="menu-btn" id="menu-btn" type="button" aria-expanded="false" aria-controls="nav" aria-label="Открыть меню">
+      <svg id="ic-open" viewBox="0 0 24 24" aria-hidden="true"><line x1="4" x2="20" y1="7" y2="7"/><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="17" y2="17"/></svg>
+      <svg id="ic-close" viewBox="0 0 24 24" aria-hidden="true" hidden><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    </button>
+    <nav id="nav" aria-label="Основное меню">
+      <a href="#services">Услуги</a>
+      <a href="#about">Обо мне</a>
+      <a href="#projects">Проекты</a>
+      <a href="#contact">Контакты</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero wrap" aria-labelledby="title">
+    <div class="hero-copy">
+      <p class="eyebrow" style="--i:0"><span class="dot"></span>l1exxtt · принимаю заказы</p>
+      <h1 id="title" style="--i:1">Telegram-боты и <em>современные сайты</em></h1>
+      <p class="sub" style="--i:2"><span class="prompt">$</span><span id="sub-text">Telegram-боты любой сложности</span><span class="cursor" aria-hidden="true"></span></p>
+      <p class="lead" style="--i:3">Беру задачу от идеи до запуска: бот для заказов и заявок, лендинг, интеграции и автоматизация рутины. Объясняю простым языком и показываю результат на каждом этапе.</p>
+      <div class="cta-row" style="--i:4">
+        <a class="btn" href="#contact">
+          <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+          Обсудить проект
+        </a>
+        <a class="btn ghost" href="#projects">Смотреть примеры</a>
+      </div>
+      <div class="facts" style="--i:5" aria-label="Технологии">
+        <span class="tag" style="--rgb:var(--blue-rgb)">Node.js</span>
+        <span class="tag" style="--rgb:var(--purple-rgb)">Python</span>
+        <span class="tag" style="--rgb:var(--green-rgb)">Telegram Bot API</span>
+        <span class="tag" style="--rgb:var(--blue-rgb)">HTML5 · CSS3 · JS</span>
+      </div>
+    </div>
+
+    <div class="stage-wrap" id="stage-wrap" role="img" aria-label="Анимация: диалог с Telegram-ботом на смартфоне и код бота на ноутбуке">
+      <div class="stage" id="stage" aria-hidden="true">
+        <div class="tilt" id="tilt">
+          <div class="floor"></div>
+
+          <div class="laptop">
+            <div class="l-screen">
+              <div class="l-bar"><i></i><i></i><i></i><span>bot.py · ~/projects/order-bot</span></div>
+              <div class="l-body" id="l-body">
+                <div class="l-code" id="code"></div>
+                <div class="l-term"><span class="h">server log</span><div id="log" style="display:contents"></div></div>
+              </div>
+            </div>
+            <div class="l-base"></div>
+          </div>
+
+          <div class="phone">
+            <div class="p-screen">
+              <div class="p-notch"></div>
+              <div class="tg-head"><span class="tg-ava">B</span><div><b>Coffee Order Bot</b><small>бот</small></div></div>
+              <div class="tg-chat" id="chat">
+                <div class="tg-flow" id="chat-flow">
+                  <div class="m u" id="m1">/start</div>
+                  <div class="m b" id="m2">Привет! Я бот кофейни. Что закажем?
+                    <div class="kb"><span class="k">Кофе</span><span class="k">Выпечка</span><span class="k">Статус заказа</span></div>
+                  </div>
+                  <div class="m b" id="m3">Выберите напиток:
+                    <div class="kb"><span class="k">Капучино · 220 ₽</span><span class="k">Латте · 240 ₽</span><span class="k">Американо · 180 ₽</span></div>
+                  </div>
+                  <div class="m b" id="m4">Капучино, 250 мл. Оформить заказ?
+                    <div class="kb two"><span class="k">Подтвердить</span><span class="k">Отмена</span></div>
+                  </div>
+                  <div class="m b" id="m5">Заказ №128 принят. Будет готов через 7 минут.</div>
+                  <div class="m sys" id="m6">администратор получил уведомление</div>
+                  <div class="m b typing" id="typing"><i></i><i></i><i></i></div>
+                </div>
+              </div>
+              <div class="tg-input"><span>Сообщение</span><i></i></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="services" class="wrap sec" aria-labelledby="services-title">
+    <div class="sec-head rv">
+      <p class="kicker">~/services</p>
+      <h2 id="services-title">Чем могу помочь</h2>
+      <p class="sec-lead">Три направления, которые закрывают задачи малого бизнеса и частных проектов: от бота в Telegram до сайта и связки между ними.</p>
+    </div>
+
+    <div class="svc-grid">
+      <article class="panel svc lift rv" style="--rgb:var(--blue-rgb)">
+        <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg></span>
+        <h3>Telegram-боты</h3>
+        <p>Боты любой сложности: приём заказов и заявок, запись на услуги, каталоги, рассылки, оплата и админ-панель прямо в Telegram.</p>
+        <div class="tags"><span class="tag">Node.js</span><span class="tag">Python</span><span class="tag">Bot API</span></div>
+      </article>
+
+      <article class="panel svc lift rv" style="--rgb:var(--purple-rgb);--d:.08s">
+        <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg></span>
+        <h3>Сайты и лендинги</h3>
+        <p>Современные адаптивные сайты: лендинги, MVP, витрины услуг и портфолио. Быстрая загрузка, аккуратная вёрстка и формы заявок.</p>
+        <div class="tags"><span class="tag">HTML5</span><span class="tag">CSS3</span><span class="tag">JavaScript</span></div>
+      </article>
+
+      <article class="panel svc lift rv" style="--rgb:var(--green-rgb);--d:.16s">
+        <span class="ico"><svg viewBox="0 0 24 24" aria-hidden="true"><rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/></svg></span>
+        <h3>Автоматизация и API</h3>
+        <p>Связываю сайт, бота и ваши сервисы: заявки приходят в Telegram, данные уходят в таблицы и CRM, уведомления и отчёты формируются сами.</p>
+        <div class="tags"><span class="tag">API интеграции</span><span class="tag">Webhooks</span></div>
+      </article>
+    </div>
+  </section>
+
+  <section id="about" class="wrap sec" aria-labelledby="about-title">
+    <div class="sec-head rv">
+      <p class="kicker">~/about.js</p>
+      <h2 id="about-title">Обо мне</h2>
+      <p class="sec-lead">Я l1exxtt, разработчик Telegram-ботов и сайтов. Разбираюсь в задаче вместе с заказчиком, предлагаю решение попроще и довожу его до запуска.</p>
+    </div>
+
+    <div class="about-grid">
+      <div class="rv">
+        <div class="panel win" id="win">
+          <div class="win-bar">
+            <div class="ctl">
+              <button class="r" id="win-close" type="button" aria-label="Закрыть окно" title="закрыть"></button>
+              <button class="y" id="win-min" type="button" aria-label="Свернуть окно" aria-expanded="true" title="свернуть"></button>
+              <button class="g" id="win-max" type="button" aria-label="Развернуть окно" title="развернуть"></button>
+            </div>
+            <span class="tab">about.js</span>
+          </div>
+          <div id="win-body">
+            <div class="code-scroll">
+<pre class="code"><code><span class="l"><span class="k">const</span> <span class="n">l1exxtt</span> <span class="p">= {</span></span>
+<span class="l">  <span class="n">role</span><span class="p">:</span> <span class="s">"Разработчик Telegram-ботов и сайтов"</span><span class="p">,</span></span>
+<span class="l">  <span class="n">stack</span><span class="p">: [</span></span>
+<span class="l">    <span class="s">"HTML5"</span><span class="p">,</span> <span class="s">"CSS3"</span><span class="p">,</span> <span class="s">"JavaScript"</span><span class="p">,</span></span>
+<span class="l">    <span class="s">"Node.js / Python (Telegram-боты)"</span><span class="p">,</span></span>
+<span class="l">    <span class="s">"API интеграции"</span></span>
+<span class="l">  <span class="p">],</span></span>
+<span class="l">  <span class="n">workflow</span><span class="p">:</span></span>
+<span class="l">    <span class="s">"Создание Telegram-ботов, автоматизация процессов, Web-разработка"</span><span class="p">,</span></span>
+<span class="l">  <span class="n">contact</span><span class="p">:</span> <span class="s">"@mhklegit"</span></span>
+<span class="l"><span class="p">};</span></span></code></pre>
+            </div>
+            <div class="win-status">
+              <span>JavaScript</span>
+              <span>UTF-8</span>
+              <span>Ln 11, Col 3</span>
+              <span class="live" id="clock">--:--</span>
+            </div>
+          </div>
+        </div>
+        <div class="chips" aria-label="Стек">
+          <span class="tag" style="--rgb:var(--blue-rgb)">HTML5</span>
+          <span class="tag" style="--rgb:var(--purple-rgb)">CSS3</span>
+          <span class="tag" style="--rgb:var(--green-rgb)">JavaScript</span>
+          <span class="tag" style="--rgb:var(--blue-rgb)">Node.js</span>
+          <span class="tag" style="--rgb:var(--purple-rgb)">Python</span>
+          <span class="tag" style="--rgb:var(--green-rgb)">API интеграции</span>
+        </div>
+      </div>
+
+      <ul class="principles rv" style="--d:.12s">
+        <li>
+          <span class="lab">// под вашу задачу</span>
+          <p>Сначала разбираю, что нужно бизнесу, и только потом выбираю инструменты. В проекте остаётся только то, что работает на результат.</p>
+        </li>
+        <li>
+          <span class="lab">// видимый результат</span>
+          <p>Показываю рабочую версию на каждом этапе. Правки вносим по ходу, а не в конце.</p>
+        </li>
+        <li>
+          <span class="lab">// понятная связь</span>
+          <p>Общаюсь в Telegram, объясняю простыми словами и называю сроки до начала работы.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section id="projects" class="wrap sec" aria-labelledby="projects-title">
+    <div class="sec-head rv">
+      <p class="kicker">~/projects</p>
+      <h2 id="projects-title">Примеры проектов</h2>
+      <p class="sec-lead">Типовые задачи для бизнеса и то, как я их решаю. Каждую можно взять за основу и доработать под свои процессы.</p>
+    </div>
+
+    <div class="grid">
+      <article class="panel card lift rv" style="--rgb:var(--blue-rgb)">
+        <div class="t-bar"><div class="t-dots"><i></i><i></i><i></i></div><span class="t-path">~/projects/order-bot</span><span class="pill">bot</span></div>
+        <div class="t-body">
+          <span class="t-cmd">start order-bot</span>
+          <h3>Бот для приёма заказов</h3>
+          <p>Меню с кнопками, корзина, подтверждение заказа и мгновенное уведомление администратору. Подходит кофейне, магазину или службе доставки.</p>
+          <div class="tags"><span class="tag">Python</span><span class="tag">Bot API</span><span class="tag">SQLite</span></div>
+          <a class="more" href="#contact" aria-label="Заказать похожего бота для приёма заказов">Заказать похожее
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+        </div>
+      </article>
+
+      <article class="panel card lift rv" style="--rgb:var(--purple-rgb);--d:.08s">
+        <div class="t-bar"><div class="t-dots"><i></i><i></i><i></i></div><span class="t-path">~/projects/mvp-landing</span><span class="pill">web</span></div>
+        <div class="t-body">
+          <span class="t-cmd">deploy mvp-landing</span>
+          <h3>MVP-лендинг для запуска</h3>
+          <p>Одностраничный сайт, чтобы проверить идею: понятное предложение, адаптивная вёрстка, форма заявки и быстрый запуск на хостинге.</p>
+          <div class="tags"><span class="tag">HTML5</span><span class="tag">CSS3</span><span class="tag">JavaScript</span></div>
+          <a class="more" href="#contact" aria-label="Заказать похожий MVP-лендинг">Заказать похожее
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+        </div>
+      </article>
+
+      <article class="panel card lift rv" style="--rgb:var(--green-rgb);--d:.16s">
+        <div class="t-bar"><div class="t-dots"><i></i><i></i><i></i></div><span class="t-path">~/projects/support-bot</span><span class="pill">bot</span></div>
+        <div class="t-body">
+          <span class="t-cmd">run support-bot</span>
+          <h3>Бот поддержки клиентов</h3>
+          <p>Отвечает на частые вопросы, собирает обращения и передаёт сложные случаи оператору. Разгружает чат и ускоряет ответы.</p>
+          <div class="tags"><span class="tag">Node.js</span><span class="tag">Bot API</span><span class="tag">Webhooks</span></div>
+          <a class="more" href="#contact" aria-label="Заказать похожего бота поддержки">Заказать похожее
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+        </div>
+      </article>
+
+      <article class="panel card lift rv" style="--rgb:var(--purple-rgb)">
+        <div class="t-bar"><div class="t-dots"><i></i><i></i><i></i></div><span class="t-path">~/projects/lead-sync</span><span class="pill">automation</span></div>
+        <div class="t-body">
+          <span class="t-cmd">sync lead-sync</span>
+          <h3>Автоматизация заявок</h3>
+          <p>Заявки с сайта сразу приходят в Telegram и попадают в таблицу или CRM. Менеджер видит новое обращение за секунды.</p>
+          <div class="tags"><span class="tag">API</span><span class="tag">Webhooks</span><span class="tag">Node.js</span></div>
+          <a class="more" href="#contact" aria-label="Заказать похожую автоматизацию заявок">Заказать похожее
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+        </div>
+      </article>
+
+      <article class="panel card lift rv" style="--rgb:var(--green-rgb);--d:.08s">
+        <div class="t-bar"><div class="t-dots"><i></i><i></i><i></i></div><span class="t-path">~/projects/booking-bot</span><span class="pill">bot</span></div>
+        <div class="t-body">
+          <span class="t-cmd">open booking-bot</span>
+          <h3>Бот для записи на услуги</h3>
+          <p>Клиент выбирает услугу, дату и время, бот подтверждает запись и присылает напоминание. Для салонов, студий и мастеров.</p>
+          <div class="tags"><span class="tag">Python</span><span class="tag">Calendar API</span><span class="tag">Bot API</span></div>
+          <a class="more" href="#contact" aria-label="Заказать похожего бота для записи">Заказать похожее
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+        </div>
+      </article>
+
+      <article class="panel card lift rv" style="--rgb:var(--blue-rgb);--d:.16s">
+        <div class="t-bar"><div class="t-dots"><i></i><i></i><i></i></div><span class="t-path">~/projects/service-site</span><span class="pill">web</span></div>
+        <div class="t-body">
+          <span class="t-cmd">build service-site</span>
+          <h3>Сайт услуг с формой заявки</h3>
+          <p>Многоблочный сайт для частного специалиста или небольшой компании: услуги, цены, отзывы и заявка, которая приходит в Telegram.</p>
+          <div class="tags"><span class="tag">HTML5</span><span class="tag">JavaScript</span><span class="tag">Telegram</span></div>
+          <a class="more" href="#contact" aria-label="Заказать похожий сайт услуг">Заказать похожее
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v10"/><path d="M7 17 17 7"/></svg></a>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="contact" class="wrap sec" aria-labelledby="contact-title">
+    <div class="sec-head rv">
+      <p class="kicker">~/contact</p>
+      <h2 id="contact-title">Обсудим проект</h2>
+      <p class="sec-lead">Расскажите, что нужно: бот, сайт или автоматизация. Отвечу в Telegram или на почту.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="panel log rv">
+        <div class="t-bar"><div class="t-dots"><i></i><i></i><i></i></div><span class="t-path">~/contact/new-request</span><span class="pill">заявка</span></div>
+        <form id="log-form">
+          <div>
+            <label for="f-name">имя</label>
+            <input id="f-name" name="name" type="text" autocomplete="name" maxlength="60" required placeholder="как к вам обращаться">
+          </div>
+          <div>
+            <label for="f-contact">контакт</label>
+            <input id="f-contact" name="contact" type="text" autocomplete="off" maxlength="80" required placeholder="Telegram или почта">
+          </div>
+          <div>
+            <label for="f-msg">задача</label>
+            <textarea id="f-msg" name="message" rows="5" maxlength="1000" required placeholder="что нужно сделать, какие сроки"></textarea>
+          </div>
+          <button class="btn" type="submit">
+            <svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+            Подготовить письмо
+          </button>
+          <p class="log-out" id="log-out" role="status" aria-live="polite"></p>
+        </form>
+      </div>
+
+      <div class="side rv" style="--d:.12s">
+        <h3>Или напишите напрямую</h3>
+        <p>Быстрее всего отвечаю в Telegram. На почту удобно отправить подробное описание или файлы.</p>
+        <div class="ccards">
+          <div class="ccard" style="--rgb:var(--blue-rgb)">
+            <a class="ccard-link" href="https://t.me/mhklegit" target="_blank" rel="noopener noreferrer">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+              <span><small>Telegram</small><b>@mhklegit</b></span>
+            </a>
+            <button class="copy" type="button" data-copy="@mhklegit" aria-label="Скопировать Telegram @mhklegit">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              <span class="cp-l">Копировать</span>
+            </button>
+          </div>
+          <div class="ccard" style="--rgb:var(--green-rgb)">
+            <a class="ccard-link" href="mailto:dzxxx013@gmail.com">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+              <span><small>Почта</small><b>dzxxx013@gmail.com</b></span>
+            </a>
+            <button class="copy" type="button" data-copy="dzxxx013@gmail.com" aria-label="Скопировать почту dzxxx013@gmail.com">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+              <span class="cp-l">Копировать</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap">© 2026 l1exxtt. Telegram-боты и веб-разработка.</div>
+</footer>
+<script>
+(function () {
+  'use strict';
+
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function $(s, c) { return (c || document).querySelector(s); }
+  function $$(s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); }
+  function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
+  function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+  /* ---------- mobile menu ---------- */
+  var menuBtn = $('#menu-btn'), nav = $('#nav'), icOpen = $('#ic-open'), icClose = $('#ic-close');
+  function setMenu(open) {
+    nav.classList.toggle('open', open);
+    menuBtn.setAttribute('aria-expanded', String(open));
+    menuBtn.setAttribute('aria-label', open ? 'Закрыть меню' : 'Открыть меню');
+    icOpen.hidden = open;
+    icClose.hidden = !open;
+  }
+  menuBtn.addEventListener('click', function () { setMenu(!nav.classList.contains('open')); });
+  $$('a', nav).forEach(function (a) { a.addEventListener('click', function () { setMenu(false); }); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setMenu(false); });
+  document.addEventListener('click', function (e) {
+    if (nav.classList.contains('open') && !nav.contains(e.target) && !menuBtn.contains(e.target)) setMenu(false);
+  });
+
+  /* ---------- pointer: background spotlight (updates only the #fx layer) ---------- */
+  var fx = $('#fx'), pRaf = 0, px = 0, py = 0;
+  window.addEventListener('pointermove', function (e) {
+    px = e.clientX; py = e.clientY;
+    if (!pRaf) pRaf = requestAnimationFrame(function () {
+      pRaf = 0;
+      fx.style.setProperty('--mx', px + 'px');
+      fx.style.setProperty('--my', py + 'px');
+    });
+  }, { passive: true });
+
+  /* ---------- device stage: fit to width + 3D tilt ---------- */
+  var wrap = $('#stage-wrap'), stage = $('#stage'), tilt = $('#tilt'), hero = $('.hero');
+  function fit() {
+    var sw = parseFloat(getComputedStyle(stage).width);
+    if (sw > 0) stage.style.setProperty('--s', (wrap.clientWidth / sw).toFixed(4));
+  }
+  fit();
+  window.addEventListener('resize', fit);
+  if ('ResizeObserver' in window) new ResizeObserver(fit).observe(wrap);
+
+  var tRaf = 0, tx = 0, ty = 0;
+  function applyTilt() {
+    tRaf = 0;
+    tilt.style.setProperty('--ry', (-8 + tx * 9).toFixed(1) + 'deg');
+    tilt.style.setProperty('--rx', (4 - ty * 7).toFixed(1) + 'deg');
+  }
+  if (!reduce && window.matchMedia('(hover: hover)').matches) {
+    hero.addEventListener('pointermove', function (e) {
+      var r = wrap.getBoundingClientRect();
+      tx = clamp((e.clientX - (r.left + r.width / 2)) / (window.innerWidth / 2), -1, 1);
+      ty = clamp((e.clientY - (r.top + r.height / 2)) / (window.innerHeight / 2), -1, 1);
+      if (!tRaf) tRaf = requestAnimationFrame(applyTilt);
+    }, { passive: true });
+    hero.addEventListener('pointerleave', function () { tx = 0; ty = 0; if (!tRaf) tRaf = requestAnimationFrame(applyTilt); });
+  }
+
+  /* ---------- pause device animations when off-screen or tab hidden ---------- */
+  var vis = true, active = true;
+  function refresh() { active = vis && !document.hidden; }
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (en) { vis = en[0].isIntersecting; refresh(); }, { threshold: 0.05 }).observe(wrap);
+  }
+  document.addEventListener('visibilitychange', refresh);
+  async function wait(ms) {
+    await sleep(ms);
+    while (!active) await sleep(300);
+  }
+
+  /* ---------- phone: Telegram bot chat loop ---------- */
+  var chat = $('#chat'), flow = $('#chat-flow'), typing = $('#typing');
+  var msgs = ['m1', 'm2', 'm3', 'm4', 'm5', 'm6'].map(function (id) { return document.getElementById(id); });
+  function keys(m) { return $$('.k', m); }
+  function scrollChat() {
+    var over = Math.max(0, flow.offsetHeight - chat.clientHeight);
+    flow.style.transform = 'translateY(-' + over + 'px)';
+  }
+  function show(el) { el.classList.add('show'); scrollChat(); }
+  async function botSay(el, ms) {
+    show(typing);
+    await wait(ms);
+    typing.classList.remove('show');
+    show(el);
+  }
+  async function press(btn) {
+    btn.classList.add('press');
+    await wait(520);
+    btn.classList.remove('press');
+  }
+  async function resetChat() {
+    chat.classList.add('fade');
+    await sleep(650);
+    msgs.concat([typing]).forEach(function (m) { m.classList.remove('show'); });
+    flow.classList.add('snap');
+    flow.style.transform = 'translateY(0)';
+    void flow.offsetHeight;
+    flow.classList.remove('snap');
+    chat.classList.remove('fade');
+  }
+  async function chatLoop() {
+    for (;;) {
+      await wait(800);
+      show(msgs[0]);                         await wait(900);
+      await botSay(msgs[1], 1000);           await wait(1000);
+      await press(keys(msgs[1])[0]);         await wait(300);
+      await botSay(msgs[2], 900);            await wait(1100);
+      await press(keys(msgs[2])[0]);         await wait(300);
+      await botSay(msgs[3], 900);            await wait(1100);
+      await press(keys(msgs[3])[0]);         await wait(300);
+      await botSay(msgs[4], 1100);           await wait(700);
+      show(msgs[5]);                         await wait(4200);
+      await resetChat();
+    }
+  }
+
+  /* ---------- laptop: code typing + server log loop ---------- */
+  var codeEl = $('#code'), logEl = $('#log'), lBody = $('#l-body');
+  var CODE = [
+    [['k', 'from'], ['', ' aiogram '], ['k', 'import'], ['', ' Bot, Dispatcher, F']],
+    [['k', 'from'], ['', ' aiogram.types '], ['k', 'import'], ['', ' Message']],
+    [],
+    [['n', 'dp'], ['p', ' = '], ['f', 'Dispatcher'], ['p', '()']],
+    [],
+    [['f', '@dp.message'], ['p', '('], ['n', 'F'], ['p', '.text == '], ['s', '"/start"'], ['p', ')']],
+    [['k', 'async def '], ['f', 'start'], ['p', '(m: '], ['n', 'Message'], ['p', '):']],
+    [['', '    '], ['k', 'await '], ['p', 'm.answer('], ['s', '"Привет! Что закажем?"'], ['p', ')']],
+    [['', '    '], ['k', 'await '], ['p', 'notify_admin(m.from_user.id)']]
+  ];
+  var LOGS = [
+    ['', 'bot started, polling'],
+    ['info', 'POST /webhook 200 · 12ms'],
+    ['', 'order #128 created'],
+    ['', 'admin notified'],
+    ['info', 'GET /api/menu 200 · 8ms']
+  ];
+  function stamp() { return new Date().toLocaleTimeString('ru-RU'); }
+  function addLog(l) {
+    var row = document.createElement('div');
+    row.className = 'row ' + l[0];
+    var t = document.createElement('span');
+    t.className = 't';
+    t.textContent = stamp();
+    row.appendChild(t);
+    row.appendChild(document.createTextNode(l[1]));
+    logEl.appendChild(row);
+  }
+  function addLine(i, full) {
+    var line = document.createElement('div');
+    line.className = 'ln';
+    CODE[i].forEach(function (tok) {
+      var sp = document.createElement('span');
+      if (tok[0]) sp.className = tok[0];
+      if (full) sp.textContent = tok[1];
+      line.appendChild(sp);
+    });
+    codeEl.appendChild(line);
+    return line;
+  }
+  async function codeLoop() {
+    for (;;) {
+      codeEl.textContent = '';
+      logEl.textContent = '';
+      lBody.classList.remove('fade');
+      await wait(700);
+      var prev = null;
+      for (var i = 0; i < CODE.length; i++) {
+        var line = addLine(i, false);
+        if (prev) prev.classList.remove('cur');
+        line.classList.add('cur');
+        prev = line;
+        var spans = line.children;
+        for (var t = 0; t < CODE[i].length; t++) {
+          var txt = CODE[i][t][1];
+          for (var c = 0; c < txt.length; c++) {
+            spans[t].textContent += txt[c];
+            await wait(16 + Math.random() * 24);
+          }
+        }
+        await wait(160);
+      }
+      await wait(700);
+      for (var k = 0; k < LOGS.length; k++) { addLog(LOGS[k]); await wait(700); }
+      await wait(4200);
+      lBody.classList.add('fade');
+      await sleep(700);
+    }
+  }
+
+  function renderStatic() {
+    msgs.forEach(function (m) { m.classList.add('show'); });
+    flow.style.transform = 'translateY(-' + Math.max(0, flow.offsetHeight - chat.clientHeight) + 'px)';
+    for (var i = 0; i < CODE.length; i++) addLine(i, true);
+    LOGS.forEach(addLog);
+  }
+
+  if (reduce) {
+    renderStatic();
+  } else {
+    chatLoop();
+    codeLoop();
+  }
+
+  /* ---------- hero subtitle typewriter ---------- */
+  var subEl = $('#sub-text');
+  var phrases = ['Telegram-боты любой сложности', 'Современные сайты и лендинги', 'Автоматизация заказов и заявок'];
+  async function subLoop() {
+    var i = 0;
+    for (;;) {
+      var t = phrases[i % phrases.length], j;
+      for (j = 1; j <= t.length; j++) { subEl.textContent = t.slice(0, j); await sleep(46); }
+      await sleep(1900);
+      for (j = t.length - 1; j >= 0; j--) { subEl.textContent = t.slice(0, j); await sleep(22); }
+      await sleep(300);
+      i++;
+    }
+  }
+  if (!reduce) {
+    subEl.textContent = '';
+    subLoop();
+  }
+
+  /* ---------- soft reveal on scroll ---------- */
+  var rv = $$('.rv');
+  if (reduce || !('IntersectionObserver' in window)) {
+    rv.forEach(function (el) { el.classList.add('in'); });
+  } else {
+    var rio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add('in'); rio.unobserve(en.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    rv.forEach(function (el) { rio.observe(el); });
+  }
+
+  /* ---------- editor window controls + clock ---------- */
+  var win = $('#win'), winBody = $('#win-body'), minBtn = $('#win-min');
+  function setOpen(open) {
+    winBody.hidden = !open;
+    minBtn.setAttribute('aria-expanded', String(open));
+  }
+  minBtn.addEventListener('click', function () { setOpen(winBody.hidden); });
+  $('#win-max').addEventListener('click', function () { setOpen(true); });
+  $('#win-close').addEventListener('click', function () {
+    win.classList.remove('shake');
+    void win.offsetWidth;
+    win.classList.add('shake');
+  });
+  var clock = $('#clock');
+  function tick() { clock.textContent = new Date().toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' }); }
+  tick();
+  setInterval(tick, 30000);
+
+  /* ---------- copy buttons ---------- */
+  function legacyCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = false;
+    try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+    document.body.removeChild(ta);
+    return ok;
+  }
+  $$('[data-copy]').forEach(function (btn) {
+    btn.addEventListener('click', async function () {
+      var text = btn.getAttribute('data-copy'), label = $('.cp-l', btn), ok = false;
+      try { await navigator.clipboard.writeText(text); ok = true; } catch (e) { ok = legacyCopy(text); }
+      label.textContent = ok ? 'Скопировано' : 'Не удалось';
+      setTimeout(function () { label.textContent = 'Копировать'; }, 1800);
+    });
+  });
+
+  /* ---------- request form: prepares an email in the visitor's mail app ---------- */
+  var form = $('#log-form'), out = $('#log-out');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = form.elements.name.value.trim();
+    var contact = form.elements.contact.value.trim();
+    var message = form.elements.message.value.trim();
+    var subject = 'Заявка с сайта l1exxtt';
+    var body = 'Имя: ' + name + '\nКонтакт: ' + contact + '\n\nЗадача:\n' + message;
+    var href = 'mailto:dzxxx013@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    out.textContent = '';
+    out.appendChild(document.createTextNode('Письмо подготовлено в вашем почтовом приложении. Если оно не открылось, напишите в Telegram: '));
+    var a = document.createElement('a');
+    a.href = 'https://t.me/mhklegit';
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = '@mhklegit';
+    out.appendChild(a);
+    window.location.href = href;
+  });
+})();
+</script>
+</body>
+</html>
